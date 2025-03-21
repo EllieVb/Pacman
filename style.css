@@ -6,7 +6,8 @@ body {
   background-color: black;
   display: flex;
   justify-content: center;
+  overflow: hidden;
 }
 #canvas {
-  height: 100%;
+  margin-top: 80px;
 }
