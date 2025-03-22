@@ -10,6 +10,9 @@ import {
 const canvas = document.getElementById("canvas");
 export const context = canvas.getContext("2d");
 export const pacmanFrames = document.getElementById("animation");
+const themeMusic = new Audio(
+  "./sound effects/js-pacman-START-HERE_sounds_game_start.wav"
+);
 
 let createRect = (x, y, width, height, color) => {
   context.fillStyle = color;
@@ -17,7 +20,7 @@ let createRect = (x, y, width, height, color) => {
 };
 
 let fps = 30; //فریم بر ثانیه ای که gameloop بر اساس اون برامون صفحه رو آپدیت میکنه
-let pacman;
+export let pacman;
 export let oneBlockSize = 20; //اندازه درنظر گرفته شده برای یک بلاک  در نقشه
 let wallColor = "#342DCA";
 let wallSpaceWidth = oneBlockSize / 1.4; //اندازه نهایی خطوط در ترسیم دیواره ی نقشه
@@ -26,6 +29,8 @@ let wallInnerColor = "black";
 
 // 1 => دیوار
 // 2 => مسیر حرکت
+//4=> مسیر تله پورت سمت چپ
+//5=> مسیر تله پورت سمت راست
 
 export let map = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -38,7 +43,7 @@ export let map = [
   [1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1],
   [0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0],
   [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1],
-  [2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+  [4, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 5],
   [1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1],
   [0, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0],
   [0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0],
@@ -52,6 +57,16 @@ export let map = [
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
+
+export let teleportPoints = [];
+for (let row = 0; row < map[row].length; row++) {
+  for (let col = 0; col < map[col].length; col++) {
+    if (map[row][col] === 4 || map[row][col] === 5) {
+      teleportPoints.push({ x: col, y: row });
+    }
+  }
+} //پیدا کردن دو خروجی تله پورت در نقشه
+//000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 let createNewPacman = () => {
   pacman = new Pacman(
@@ -72,10 +87,14 @@ let gameLoop = () => {
 let pacmanCanMove = false;
 setTimeout(() => {
   pacmanCanMove = true;
-}, 4000); //به بازی تعویق میده که بعد از چند ثانیه شروع بشه
+}, 5000); //به شروع بازی تعویق میده که بعد از چند ثانیه شروع بشه
+
+function playAudio(audio) {
+  themeMusic.play();
+} //theme Music playing ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 let update = () => {
-  // pacman.moveProcess();
+  addEventListener("load", playAudio); //theme Music playing ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   if (pacmanCanMove == true) {
     pacman.moveProcess();
   }
@@ -87,7 +106,7 @@ let draw = () => {
   pacman.draw();
 };
 
-let gameInterval = setInterval(gameLoop, 1000 / fps);
+export let gameInterval = setInterval(gameLoop, 1000 / fps);
 
 let drawWalls = () => {
   for (let i = 0; i < map.length; i++) {
@@ -162,4 +181,4 @@ window.addEventListener("keydown", (event) => {
       pacman.nextDirection = DIRECTION_BOTTOM;
     }
   }, 1);
-});
+}); // جهت دهی با ایونت و دکمه

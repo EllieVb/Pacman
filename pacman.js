@@ -1,5 +1,5 @@
 console.log("pacman.js file is connected!");
-import { map, context, oneBlockSize, pacmanFrames } from "./game.js";
+import { map, context, pacman, oneBlockSize, pacmanFrames } from "./game.js";
 
 export const DIRECTION_RIGHT = 4;
 export const DIRECTION_UP = 3;
@@ -17,6 +17,7 @@ export class Pacman {
     this.nextDirection = this.direction; //مسیر حرکت جدید رو بعد از ایونت دکمه میده
     this.currentFrame = 1; //فریم نمایشی پیش فرض و اولیه ی پکمن در گیف، اولی هست
     this.frameCount = 7; //تعداد کل فریم های حرکت پکمن در گیف
+    this.lastTeleportTime = 0;
 
     setInterval(() => {
       this.changeAnimation();
@@ -30,6 +31,7 @@ export class Pacman {
     if (this.checkCollision()) {
       this.moveBackwards();
     }
+    this.checkTeleport(); //000000000000000000000000000000000000000000000000000000000000000000000000000000 teleport function
   }
   eat() {}
   moveBackwards() {
@@ -64,6 +66,17 @@ export class Pacman {
         break;
     }
   }
+
+  teleport(newX, newY) {
+    pacman.disappeared = true;
+    setTimeout(() => {
+      this.x = newX * oneBlockSize;
+      this.y = newY * oneBlockSize;
+      pacman.disappeared = false;
+    }, 3);
+    console.log("teleporting pacman to new location");
+  } //0000000000000000000000000000000000000000000000000000000000000000000000000000000 teleport function
+
   checkCollision() {
     if (
       map[this.getMapY()][this.getMapX()] == 1 ||
@@ -76,6 +89,36 @@ export class Pacman {
     }
     return false;
   }
+
+  checkTeleport() {
+    let pacX = this.getMapX();
+    let pacY = this.getMapY();
+
+    let currentTime = Date.now();
+    if (currentTime - this.lastTeleportTime < 500) return;
+
+    if (map[pacY][pacX] === 4) {
+      for (let row = 0; row < map.length; row++) {
+        for (let col = 0; col < map[row].length; col++) {
+          if (map[row][col] === 5) {
+            this.teleport(col, row);
+            this.lastTeleportTime = currentTime;
+            return;
+          }
+        }
+      }
+    } else if (map[pacY][pacX] === 5) {
+      for (let row = 0; row < map.length; row++) {
+        for (let col = 0; col < map[row].length; col++) {
+          if (map[row][col] === 4) {
+            this.teleport(col, row);
+            this.lastTeleportTime = currentTime;
+            return;
+          }
+        }
+      }
+    }
+  } //000000000000000000000000000000000000000000000000000000000000000000000000000 teleport function
 
   checkGhostCollision() {}
   changeDirectionIfPossible() {
